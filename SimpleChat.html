@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>go websocket实现聊天室</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<style type="text/css">
+	.top{
+		height: 80px;
+		text-align: right;
+		font-size: 40px;
+		background-color: pink;
+	}
+    #middle{
+    	height: 500px;
+		border: 5px solid #FF6A6A;
+    }
+    #message{
+    	vertical-align: center;
+    	height: 30px;
+    	width: 600px; 
+    }
+</style>
+<body>
+	<script type="text/javascript">
+
+        var id="";
+        var msg="";
+        var ws=null;
+		var wsurl="ws://192.168.124.5:8080/echo";
+
+		window.onload = function() {
+
+            console.log("onload");
+
+            ws = new WebSocket(wsurl);
+
+            ws.onopen = function() {
+
+                console.log("connection succeed");
+            }
+
+            ws.onclose = function(evt) {
+            	
+                console.log("connection closed (" + evt.code + ")");
+            }
+
+            ws.onmessage = function(evt) {
+
+                var data = JSON.parse(evt.data);
+                if (data.content != " "){
+                    console.log("message received: " + evt.data);
+        
+                    document.getElementById("middle").innerHTML += data.sender+"<br>";
+                    document.getElementById("middle").innerHTML += data.content+"<br>";
+                    document.getElementById("message").value="";
+                }
+            }
+        };
+        function send() {
+
+            msg = document.getElementById('message').value;
+            ws.send(msg);
+        };
+    </script>
+	<div class="top">simple websocket chat</div>
+	<div id="middle"></div>
+	<div class="bottom">
+		<form action="/echo">
+			<p><br>
+		        <input id="message" type="text" placeholder="输入聊天内容">
+			</p>
+		</form>
+		<button onclick="send();">发送消息</button>
+	</div>
+</body>
+</html>
